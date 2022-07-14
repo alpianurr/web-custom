@@ -1,0 +1,32 @@
+- hosts: allserver
+  vars:
+    - image: "alpianurr/web-custom"
+  tasks:
+    - name: install di ubuntu
+      apt: 
+        name: "{{ item }}"
+        state: present
+      loop:
+        - python3
+        - python3-docker
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: install di centos
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - epel-release
+        - python3
+        - python3-docker
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: running container
+      docker_container:
+        name: docker-ansible
+        image: "{{ image }}"
+        state: started
+        published_ports:
+           - 10000:80
+        recreate: yes
+        pull : yes 
